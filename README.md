@@ -1,10 +1,10 @@
 ###Project Proposal 
 ```
-Project Name: Cryptochat
-Group Name: Cryptochat
-Group Members: Michael Pomogajko, Karen Tran
-Course: CECS 478, Section 1
-Date: September 11, 2015
+Project Name:   Cryptochat
+Group Name:     Cryptochat
+Group Members:  Michael Pomogajko, Karen Tran
+Course:         CECS 478, Section 1
+Date:           September 11, 2015
 ```
 ####Motivation
 Instant online messaging is one of the most popular form of communication in our current time, but it’s hard to tell how secure your online conversations are kept. An online secure channel where strangers can’t eavesdrop on your conversation, and where your conversation history is deleted after the chat session ends, are the best ways for ensuring the privacy of your online conversations. 
@@ -16,11 +16,12 @@ Cryptochat is for chatting with people on a secure channel, where the messages y
 Cryptochat will be compatible on any web browser (Chrome, FireFox, etc.), and will be hosted on a private web server. The software languages we’ll be using to implement our system are Javascript, HTML, CSS, JSON, PHP, and encryption libraries.
 
 ####Goals
-No messages saved on server
-Secure and unique login
-Encrypted messages
-Authorized access for one-to-one chat rooms
-
+```
+-No messages saved on server
+-Secure and unique login
+-Encrypted messages
+-Authorized access for one-to-one chat rooms
+```
 ####Deadlines 
 ```
 Milestones                          Deadlines
