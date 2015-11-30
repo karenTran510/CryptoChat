@@ -20,6 +20,60 @@
                 left: 10px;
             }
 	   </style>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <!--<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>-->
+        <!--<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>-->
+        <script>
+                var socket = io.connect();
+                var nickForm = $('#setNick');
+                var nickError = $('#nickError');
+                var nickBox = $('#nickname');
+                var users = $('#users');
+                var messageForm = $('#send-message');
+                var messageBox = $('#message');
+                var chat = $('#chat');
+                //var keypair = require('keypair')();
+                //alert(keypair);
+            
+                // Submit Nickname
+                nickForm.submit(function(e){
+                    e.preventDefault();
+                    socket.emit('new user', nickBox.val(), function(data){
+                        if(data){
+                            $('#nickWrap').hide();
+                            $('#contentWrap').show();
+                        } else{
+                            nickError.html('That username is already taken! Try again.');
+                        }
+                    });
+                    nickBox.val('');
+                });
+
+                // Get usernames
+                socket.on('usernames', function(data){
+                    var html = '<p> Users online: </p>';
+                    for(i=0; i < data.length; i++){
+                        html += data[i] + '<br/>'
+                    }
+                    users.html(html);
+                });
+
+                //Submit message
+                messageForm.submit(function(e){
+                    e.preventDefault();
+                    socket.emit('send message', messageBox.val());
+                    messageBox.val('');
+                });
+
+                //Receive message
+                socket.on('new message', function(data){
+                    chat.append('<b>' + data.nick + ': </b>' + data.msg + "<br/>");
+                });
+            })(jQuery);
+            
+        </script>
     </head>
     
     <body>
@@ -44,53 +98,5 @@
             <div id="users">
             </div>
         </div>
-
-        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
-        <script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
-        <script>
-            jQuery(function($){
-                var socket = io.connect();
-                var nickForm = $('#setNick');
-                var nickError = $('#nickError');
-                var nickBox = $('#nickname');
-                var users = $('#users');
-                var messageForm = $('#send-message');
-                var messageBox = $('#message');
-                var chat = $('#chat');
-
-                nickForm.submit(function(e){
-                    e.preventDefault();
-                    socket.emit('new user', nickBox.val(), function(data){
-                        if(data){
-                            $('#nickWrap').hide();
-                            $('#contentWrap').show();
-                        } else{
-                            nickError.html('That username is already taken!  Try again.');
-                        }
-                    });
-                    nickBox.val('');
-                });
-
-                socket.on('usernames', function(data){
-                    var html = '<p> Users online: </p>';
-                    for(i=0; i < data.length; i++){
-                        html += data[i] + '<br/>'
-                    }
-                    users.html(html);
-                });
-
-                messageForm.submit(function(e){
-                    e.preventDefault();
-                    socket.emit('send message', messageBox.val());
-                    messageBox.val('');
-                });
-
-                socket.on('new message', function(data){
-                    chat.append('<b>' + data.nick + ': </b>' + data.msg + "<br/>");
-                });
-            });
-        </script>
     </body>
 </html>

@@ -1,13 +1,20 @@
-var app = require('express')();
-var	server = require('http').createServer(app).listen(3000, function(){
-    console.log("Server listen on port 3000");
+var	app = require('express')();
+var fs = require('fs');
+var options = {
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt')
+};
+var server = require('https').createServer(options, app).listen(3000, function(){
+    console.log("Https server started on port 3000");
 });
 var	io = require('socket.io').listen(server);
 var	nicknames = [];
 
+
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
+
 
 io.on('connection', function(socket){
 	socket.on('new user', function(data, callback){
@@ -22,7 +29,7 @@ io.on('connection', function(socket){
 	});
 	
 	function updateNicknames(){
-		io.emit('usernames', nicknames);
+		io.sockets.emit('usernames', nicknames);
 	}
 
 	socket.on('send message', function(data){
