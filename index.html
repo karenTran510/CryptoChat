@@ -22,10 +22,12 @@
 	   </style>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
+        <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <!--<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>-->
-        <!--<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>-->
+        
         <script>
+            jQuery(function($){
                 var socket = io.connect();
                 var nickForm = $('#setNick');
                 var nickError = $('#nickError');
@@ -34,8 +36,6 @@
                 var messageForm = $('#send-message');
                 var messageBox = $('#message');
                 var chat = $('#chat');
-                //var keypair = require('keypair')();
-                //alert(keypair);
             
                 // Submit Nickname
                 nickForm.submit(function(e){
@@ -51,7 +51,7 @@
                     nickBox.val('');
                 });
 
-                // Get usernames
+                // Receive usernames
                 socket.on('usernames', function(data){
                     var html = '<p> Users online: </p>';
                     for(i=0; i < data.length; i++){
@@ -71,7 +71,7 @@
                 socket.on('new message', function(data){
                     chat.append('<b>' + data.nick + ': </b>' + data.msg + "<br/>");
                 });
-            })(jQuery);
+            });
             
         </script>
     </head>
