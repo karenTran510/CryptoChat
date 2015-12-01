@@ -9,7 +9,7 @@
                 width: 500px;
             }
             #contentWrap{
-                display: none;
+                display: inline;
             }
 	   	    #chatWrap{
                 float: left;
@@ -18,6 +18,10 @@
             
             #users{
                 left: 10px;
+            }
+            
+            #nickWrap{
+                display: none;
             }
 	   </style>
         
@@ -29,27 +33,12 @@
         <script>
             jQuery(function($){
                 var socket = io.connect();
-                var nickForm = $('#setNick');
-                var nickError = $('#nickError');
-                var nickBox = $('#nickname');
                 var users = $('#users');
                 var messageForm = $('#send-message');
                 var messageBox = $('#message');
                 var chat = $('#chat');
             
-                // Submit Nickname
-                nickForm.submit(function(e){
-                    e.preventDefault();
-                    socket.emit('new user', nickBox.val(), function(data){
-                        if(data){
-                            $('#nickWrap').hide();
-                            $('#contentWrap').show();
-                        } else{
-                            nickError.html('That username is already taken! Try again.');
-                        }
-                    });
-                    nickBox.val('');
-                });
+                socket.emit('connected');
 
                 // Receive usernames
                 socket.on('usernames', function(data){
