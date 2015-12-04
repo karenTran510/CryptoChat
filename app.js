@@ -21,19 +21,29 @@ var users = [];
 app.use(express.static(__dirname + '/scripts'));
 app.use(auth.connect(basic));
 
+function indexOfNick(nick){
+    for (var i=0; i<users.length; i++) {
+        if (users[i].nick == nick) return i;
+    } return -1;
+}
+
 app.get('/', function(req, res){
-	res.sendFile(__dirname + '/index.html');
-    nickname = req.user;
+    if(indexOfNick(req.user) == -1){
+	    res.sendFile(__dirname + '/index.html');
+        nickname = req.user;
+    } else {
+        res.send("User already connected, try again!");
+    }
 });
 
 
-io.on('connection', function(socket){
+io.on('connection', function(socket){    
     socket.on('connected', function(data){
         socket.nickname = nickname;
         users.push({id: socket.id, nick: socket.nickname, pubKey: data});
-        console.log(users);
-        console.log('-----------------\n');
-        updateUsers();      
+        updateUsers();
+        console.log(socket.nickname + " connected!");
+        usersOnline();
     });
     
     socket.on('requestKeys', function(){
@@ -46,20 +56,28 @@ io.on('connection', function(socket){
 	
 	socket.on('disconnect', function(data){
 		if(!socket.nickname) return;
-		users.splice(indexOfID(users, socket.id), 1);
+		users.splice(indexOfID(socket.id), 1);
 		updateUsers();
-        console.log(users);
-        console.log('-----------------\n');
+        console.log(socket.nickname + " disconnected!");
+        usersOnline();
 	});
     
     function updateUsers(){
 		io.emit('users', users);
 	}
     
-    function indexOfID(array, id) {
-        for (var i=0; i<array.length; i++) {
-            if (array[i].id==id) return i;
-            }
+    function indexOfID(id) {
+        for (var i=0; i<users.length; i++) {
+            if (users[i].id==id) return i;
+        }
         return -1;
+    }
+    
+    function usersOnline(){
+        var online = "";
+        for(var i = 0; i<users.length; i++){
+            online += users[i].nick + ", ";
+        }
+        console.log("Users online: " + online.slice(0, -2)+"\n----------------");
     }
 });
