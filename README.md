@@ -31,4 +31,4 @@ User login and Database             11/6/15
 Encryption                          12/09/15
 ```
 ####UPDATE 9/28/15
-Access to the website: http://130.255.185.116:13120/
+Access to the website: https://51.254.87.145
