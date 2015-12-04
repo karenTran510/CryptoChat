@@ -8,28 +8,32 @@
                 height:500px;
                 width: 500px;
             }
-            #contentWrap{
-                display: inline;
-            }
 	   	    #chatWrap{
                 float: left;
 	            border-right: 1px solid #000;
-   	   	    }
-            
+   	   	    }        
             #users{
                 left: 10px;
-            }
-            
-            #nickWrap{
-                display: none;
-            }
+            }  
 	   </style>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
         <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
         <script src="/socket.io/socket.io.js"></script>
+        <script src="cryptico.min.js"></script>
+    
         
+        <!-- Generate RSA Key -->
+        <script>
+            function generateKey(){
+                var randomPhrase = Math.random().toString(36).substring(2);
+                var rsaKey = cryptico.generateRSAKey(randomPhrase, 2048);
+                return rsaKey;
+            }
+        </script>
+        
+        <!-- Main Script -->
         <script>
             jQuery(function($){
                 var socket = io.connect();
@@ -37,49 +41,61 @@
                 var messageForm = $('#send-message');
                 var messageBox = $('#message');
                 var chat = $('#chat');
+                var rsaKey = generateKey();
+                var pubKey = cryptico.publicKeyString(rsaKey);
             
-                socket.emit('connected');
+                socket.emit('connected', pubKey);
 
                 // Receive usernames
                 socket.on('usernames', function(data){
-                    var html = '<p> Users online: </p>';
+                    var html = '<p> Users online: </p>'
                     for(i=0; i < data.length; i++){
                         html += data[i] + '<br/>'
                     }
                     users.html(html);
                 });
 
-                //Submit message
+                //Submit button, request public keys
                 messageForm.submit(function(e){
                     e.preventDefault();
-                    socket.emit('send message', messageBox.val());
+                    socket.emit('requestKeys');
+                });
+                
+                // Send encrypted messages
+                socket.on('getKeys', function(data){
+                    var encData = [];
+                    var msg = messageBox.val();
                     messageBox.val('');
+                    for(i in data){
+                        console.log("Public Key: ", data[i]);
+                        var encrypted = cryptico.encrypt(msg, data[i]);
+                        console.log("Encrypted : ", encrypted);
+                        encData.push(encrypted);
+                    }
+                    socket.emit('send message', encData);
                 });
 
-                //Receive message
+                //Receive encrypted messages / decrypt
                 socket.on('new message', function(data){
-                    chat.append('<b>' + data.nick + ': </b>' + data.msg + "<br/>");
+                    for(i in data.msg){
+                        var decRes = cryptico.decrypt(data.msg[i].cipher, rsaKey)
+                        if(decRes.status == "success"){
+                            chat.append('<b>' + data.nick + ': </b>' + decRes.plaintext + "<br/>");
+                            return;
+                        }
+                    }
+                    console.log("No matching key found");
                 });
             });
-            
         </script>
     </head>
     
     <body>
-        <div id="nickWrap">
-            <p>Enter a username:</p>
-            <p id="nickError"></p>
-            <form id="setNick">
-                <input size="35" id="nickname"></input>
-                <input type="submit"></input>
-            </form>
-        </div>
-
         <div id="contentWrap">
             <h2>Welcome to Cryptochat!</h2>
             <div id="chatWrap">
                 <div id="chat"></div>
-                <form id="send-message">
+                <form id="send-message" autocomplete="off">
                     <input size="35" id="message"></input>
                     <input type="submit"></input>
                 </form>

@@ -7,15 +7,17 @@ var options = {
 };
 var auth = require('http-auth');
 var basic = auth.basic({
-    realm: "No un-authorized access!!",
-    file: __dirname + "/pwd/users.htpasswd" // gevorg:gpass, Sarah:testpass ... 
+    realm: "No un-authorized access!",
+    file: __dirname + "/pwd/users.htpasswd"
 });
 
 var server = require('https').createServer(options, app).listen(3000, function(){
-    console.log("Https server started on port 3000");
+    console.log("Https server started");
 });
 var	io = require('socket.io').listen(server);
 var	nicknames = [];
+var users = [];
+var pubKeys = [];
 var nickname;
 
 app.use(express.static(__dirname + '/scripts'));
@@ -28,10 +30,16 @@ app.get('/', function(req, res){
 
 
 io.on('connection', function(socket){ 
-    socket.on('connected', function(){
+    socket.on('connected', function(data){
+        console.log("key received");
+        pubKeys.push(data);
         socket.nickname = nickname
         nicknames.push(socket.nickname);
         updateNicknames();      
+    });
+    
+    socket.on('requestKeys', function(){
+       socket.emit('getKeys', pubKeys);
     });
 
 	socket.on('send message', function(data){
