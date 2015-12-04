@@ -6,8 +6,8 @@ var options = {
     cert: fs.readFileSync('server.crt')
 };
 var auth = require('http-auth');
-var basic = auth.basic({
-    realm: "No un-authorized access!",
+var basic = auth.digest({
+    realm: "No un-authorized access",
     file: __dirname + "/pwd/users.htpasswd"
 });
 
@@ -46,7 +46,6 @@ io.on('connection', function(socket){
 	
 	socket.on('disconnect', function(data){
 		if(!socket.nickname) return;
-        console.log(indexOfID(users, socket.id));
 		users.splice(indexOfID(users, socket.id), 1);
 		updateUsers();
         console.log(users);
