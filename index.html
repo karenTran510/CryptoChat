@@ -47,10 +47,10 @@
                 socket.emit('connected', pubKey);
 
                 // Receive usernames
-                socket.on('usernames', function(data){
+                socket.on('users', function(data){
                     var html = '<p> Users online: </p>'
-                    for(i=0; i < data.length; i++){
-                        html += data[i] + '<br/>'
+                    for(i in data){
+                        html += data[i].nick + '<br/>'
                     }
                     users.html(html);
                 });
@@ -67,9 +67,7 @@
                     var msg = messageBox.val();
                     messageBox.val('');
                     for(i in data){
-                        console.log("Public Key: ", data[i]);
-                        var encrypted = cryptico.encrypt(msg, data[i]);
-                        console.log("Encrypted : ", encrypted);
+                        var encrypted = cryptico.encrypt(msg, data[i].pubKey);
                         encData.push(encrypted);
                     }
                     socket.emit('send message', encData);
@@ -84,7 +82,7 @@
                             return;
                         }
                     }
-                    console.log("No matching key found");
+                    chat.append('<b>No connectivity! Please refresh!<b><br/>');
                 });
             });
         </script>

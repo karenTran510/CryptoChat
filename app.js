@@ -15,10 +15,8 @@ var server = require('https').createServer(options, app).listen(3000, function()
     console.log("Https server started");
 });
 var	io = require('socket.io').listen(server);
-var	nicknames = [];
-var users = [];
-var pubKeys = [];
 var nickname;
+var users = [];
 
 app.use(express.static(__dirname + '/scripts'));
 app.use(auth.connect(basic));
@@ -29,17 +27,17 @@ app.get('/', function(req, res){
 });
 
 
-io.on('connection', function(socket){ 
+io.on('connection', function(socket){
     socket.on('connected', function(data){
-        console.log("key received");
-        pubKeys.push(data);
-        socket.nickname = nickname
-        nicknames.push(socket.nickname);
-        updateNicknames();      
+        socket.nickname = nickname;
+        users.push({id: socket.id, nick: socket.nickname, pubKey: data});
+        console.log(users);
+        console.log('-----------------\n');
+        updateUsers();      
     });
     
     socket.on('requestKeys', function(){
-       socket.emit('getKeys', pubKeys);
+       socket.emit('getKeys', users);
     });
 
 	socket.on('send message', function(data){
@@ -48,11 +46,21 @@ io.on('connection', function(socket){
 	
 	socket.on('disconnect', function(data){
 		if(!socket.nickname) return;
-		nicknames.splice(nicknames.indexOf(socket.nickname), 1);
-		updateNicknames();
+        console.log(indexOfID(users, socket.id));
+		users.splice(indexOfID(users, socket.id), 1);
+		updateUsers();
+        console.log(users);
+        console.log('-----------------\n');
 	});
     
-    function updateNicknames(){
-		io.emit('usernames', nicknames);
+    function updateUsers(){
+		io.emit('users', users);
 	}
+    
+    function indexOfID(array, id) {
+        for (var i=0; i<array.length; i++) {
+            if (array[i].id==id) return i;
+            }
+        return -1;
+    }
 });
