@@ -1,14 +1,14 @@
 var express = require('express');
-var	app = express();
-var fs = require('fs');
+var	app     = express();
+var fs      = require('fs');
 var options = {
     key: fs.readFileSync('server.key'),
     cert: fs.readFileSync('server.crt')
 };
-var auth = require('http-auth');
+var auth  = require('http-auth');
 var basic = auth.digest({
-    realm: "No un-authorized access",
-    file: __dirname + "/pwd/users.htpasswd"
+    realm : "No un-authorized access",
+    file  : __dirname + "/pwd/users.htpasswd"
 });
 
 var server = require('https').createServer(options, app).listen(3000, function(){
