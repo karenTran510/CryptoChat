@@ -109,6 +109,7 @@
             //Submit button, request public keys
             messageForm.submit(function(e) {
                 e.preventDefault();
+                if (messageBox.val() == "") return;
                 socket.emit('requestKeys');
             });
 
