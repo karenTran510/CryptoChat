@@ -4,17 +4,47 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 	    <title>CryptoChat</title>
 	    <style>
+		body {
+			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+			margin: 0;
+			display:inline-block;
+			padding-left: 300px;
+		}
+		h1{
+			text-align:center;
+		}
+			#contentWrap {
+				display:inline-block;
+				border-style: dotted;
+			}
             #chat{
-                height:500px;
-                width: 500px;
-            }
-	   	    #chatWrap{
-                float: left;
-	            border-right: 1px solid #000;
+				fixed-width: 500px;
+				height: 500px;
+				font: serif;
+				overflow-y: auto;
+				padding-bottom: 10px;
+            } 
+			#chatWrap{
+				width: 500px;
+				height:500px;
+				float:left;
+				border-right:3px dotted #000;
    	   	    }        
             #users{
-                left: 10px;
-            }  
+				width: 200px;
+				height: 500px;
+				float:right;
+            }
+			
+			form input{
+				width:400px;
+				top-padding: 100px;
+			}
+			
+			form input[type=submit]{
+				width: 6em; height: 1.5em;
+			}
+			    
 	   </style>
         
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -45,7 +75,7 @@
                 var pubKey = cryptico.publicKeyString(rsaKey);
             
                 socket.emit('connected', pubKey);
-
+				
                 // Receive usernames
                 socket.on('users', function(data){
                     var html = '<p> Users online: </p>'
@@ -89,8 +119,8 @@
     </head>
     
     <body>
+	<h1>Welcome to Cryptochat!</h1>
         <div id="contentWrap">
-            <h2>Welcome to Cryptochat!</h2>
             <div id="chatWrap">
                 <div id="chat"></div>
                 <form id="send-message" autocomplete="off">
