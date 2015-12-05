@@ -1,135 +1,161 @@
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-	    <title>CryptoChat</title>
-	    <style>
-		body {
-			font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-			margin: 0;
-			display:inline-block;
-			padding-left: 300px;
-		}
-		h1{
-			text-align:center;
-		}
-			#contentWrap {
-				display:inline-block;
-				border-style: dotted;
-			}
-            #chat{
-				fixed-width: 500px;
-				height: 500px;
-				font: serif;
-				overflow-y: auto;
-				padding-bottom: 10px;
-            } 
-			#chatWrap{
-				width: 500px;
-				height:500px;
-				float:left;
-				border-right:3px dotted #000;
-   	   	    }        
-            #users{
-				width: 200px;
-				height: 500px;
-				float:right;
-            }
-			
-			form input{
-				width:400px;
-				top-padding: 100px;
-			}
-			
-			form input[type=submit]{
-				width: 6em; height: 1.5em;
-			}
-			    
-	   </style>
-        
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
-        <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="cryptico.min.js"></script>
-    
-        
-        <!-- Generate RSA Key -->
-        <script>
-            function generateKey(){
-                var randomPhrase = Math.random().toString(36).substring(2);
-                var rsaKey = cryptico.generateRSAKey(randomPhrase, 2048);
-                return rsaKey;
-            }
-        </script>
-        
-        <!-- Main Script -->
-        <script>
-            jQuery(function($){
-                var socket = io.connect();
-                var users = $('#users');
-                var messageForm = $('#send-message');
-                var messageBox = $('#message');
-                var chat = $('#chat');
-                var rsaKey = generateKey();
-                var pubKey = cryptico.publicKeyString(rsaKey);
-            
-                socket.emit('connected', pubKey);
-				
-                // Receive usernames
-                socket.on('users', function(data){
-                    var html = '<p> Users online: </p>'
-                    for(i in data){
-                        html += data[i].nick + '<br/>'
-                    }
-                    users.html(html);
-                });
 
-                //Submit button, request public keys
-                messageForm.submit(function(e){
-                    e.preventDefault();
-                    socket.emit('requestKeys');
-                });
-                
-                // Send encrypted messages
-                socket.on('getKeys', function(data){
-                    var encData = [];
-                    var msg = messageBox.val();
-                    messageBox.val('');
-                    for(i in data){
-                        var encrypted = cryptico.encrypt(msg, data[i].pubKey);
-                        encData.push(encrypted);
-                    }
-                    socket.emit('send message', encData);
-                });
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CryptoChat</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: inline-block;
+            padding-left: 300px;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        #contentWrap {
+            display: inline-block;
+            border-style: dotted;
+        }
+        
+        #chat {
+            fixed-width: 500px;
+            height: 500px;
+            font: serif;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
 
-                //Receive encrypted messages / decrypt
-                socket.on('new message', function(data){
-                    for(i in data.msg){
-                        var decRes = cryptico.decrypt(data.msg[i].cipher, rsaKey)
-                        if(decRes.status == "success"){
-                            chat.append('<b>' + data.nick + ': </b>' + decRes.plaintext + "<br/>");
-                            return;
-                        }
-                    }
-                    chat.append('<b>No connectivity! Please refresh!<b><br/>');
-                });
+        #users {
+            overflow-y: auto;
+        }
+
+        #chat p:nth-child(odd) {
+            background-color: #ddd;
+        }
+
+        #chat p {
+            margin: 0;
+            padding: 2px;
+            background-color: #eee;
+        }
+
+        #chatWrap {
+            width: 500px;
+            height: 500px;
+            float: left;
+            border-right: 3px dotted #000;
+        }
+
+        #users {
+            width: 200px;
+            height: 500px;
+            float: right;
+            text-align: center;
+        }
+
+        form input {
+            width: 400px;
+            top-padding: 100px;
+        }
+
+        form input[type=submit] {
+            width: 6em;
+            height: 1.5em;
+        }
+
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
+    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="cryptico.min.js"></script>
+
+
+    <!-- Generate RSA Key -->
+    <script>
+        function generateKey() {
+            var randomPhrase = Math.random().toString(36).substring(2);
+            var rsaKey = cryptico.generateRSAKey(randomPhrase, 2048);
+            return rsaKey;
+        }
+
+    </script>
+
+    <!-- Main Script -->
+    <script>
+        jQuery(function($) {
+            var socket = io.connect();
+            var users = $('#users');
+            var messageForm = $('#send-message');
+            var messageBox = $('#message');
+            var chat = $('#chat');
+            var rsaKey = generateKey();
+            var pubKey = cryptico.publicKeyString(rsaKey);
+
+            socket.emit('connected', pubKey);
+
+            // Receive usernames
+            socket.on('users', function(data) {
+                var html = '<p> <b>Users online: </b></p>'
+                for (i in data) {
+                    html += data[i].nick + '<br/>'
+                }
+                users.html(html);
             });
-        </script>
-    </head>
-    
-    <body>
-	<h1>Welcome to Cryptochat!</h1>
-        <div id="contentWrap">
-            <div id="chatWrap">
-                <div id="chat"></div>
-                <form id="send-message" autocomplete="off">
-                    <input size="35" id="message"></input>
-                    <input type="submit"></input>
-                </form>
-            </div>
-            <div id="users">
-            </div>
+
+            //Submit button, request public keys
+            messageForm.submit(function(e) {
+                e.preventDefault();
+                socket.emit('requestKeys');
+            });
+
+            // Send encrypted messages
+            socket.on('getKeys', function(data) {
+                var encData = [];
+                var msg = messageBox.val();
+                messageBox.val('');
+                for (i in data) {
+                    var encrypted = cryptico.encrypt(msg, data[i].pubKey);
+                    encData.push(encrypted);
+                }
+                socket.emit('send message', encData);
+            });
+
+            //Receive encrypted messages / decrypt
+            socket.on('new message', function(data) {
+                for (i in data.msg) {
+                    var decRes = cryptico.decrypt(data.msg[i].cipher, rsaKey)
+                    if (decRes.status == "success") {
+                        chat.append('<p><b>' + data.nick + ': </b>' + decRes.plaintext + "</p>");
+                        chat[0].scrollTop = chat[0].scrollHeight;
+                        return;
+                    }
+                }
+                chat.append('<b>No connectivity! Please refresh!<b><br/>');
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <h1>Welcome to Cryptochat!</h1>
+    <div id="contentWrap">
+        <div id="chatWrap">
+            <div id="chat"></div>
+            <form id="send-message" autocomplete="off">
+                <input size="35" id="message" autocomplete="off" placeholder="Write a new message"></input>
+                <input type="submit"></input>
+            </form>
         </div>
-    </body>
+        <div id="users">
+        </div>
+    </div>
+</body>
+
 </html>
