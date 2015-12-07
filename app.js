@@ -48,6 +48,7 @@ io.on('connection', function (socket) {
             pubKey: data
         });
         updateUsers();
+        console.log(Date);
         console.log(socket.nickname + " connected!");
         usersOnline();
     });
@@ -67,6 +68,7 @@ io.on('connection', function (socket) {
         if (!socket.nickname) return;
         users.splice(indexOfID(socket.id), 1);
         updateUsers();
+        console.log(Date);
         console.log(socket.nickname + " disconnected!");
         usersOnline();
     });
