@@ -11,7 +11,7 @@ var basic = auth.digest({
     file: __dirname + "/pwd/users.htpasswd"
 });
 
-var server = require('https').createServer(options, app).listen(3000, function () {
+var server = require('https').createServer(options, app).listen(443, function () {
     console.log("Https server started");
 });
 var io = require('socket.io').listen(server);
@@ -39,6 +39,7 @@ app.get('/', function (req, res) {
 
 
 io.on('connection', function (socket) {
+    socket.emit('username', nickname);
     socket.on('connected', function (data) {
         socket.nickname = nickname;
         users.push({

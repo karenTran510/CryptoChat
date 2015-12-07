@@ -72,8 +72,6 @@
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
-    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="cryptico.min.js"></script>
 
@@ -100,11 +98,12 @@
             var rsaKey = generateKey();
             var pubKey = cryptico.publicKeyString(rsaKey);
 
-            socket.emit('connected', pubKey);
-
             socket.on('username', function(data) {
                 username.append(data);
             });
+
+            socket.emit('connected', pubKey);
+
 
             // Receive usernames
             socket.on('users', function(data) {
