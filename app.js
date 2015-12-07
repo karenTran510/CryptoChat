@@ -46,6 +46,7 @@ io.on('connection', function (socket) {
             nick: socket.nickname,
             pubKey: data
         });
+        socket.emit('username', socket.nickname);
         updateUsers();
         console.log(socket.nickname + " connected!");
         usersOnline();
