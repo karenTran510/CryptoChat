@@ -80,7 +80,9 @@
     <script>
         function generateKey() {
             var randomPhrase = Math.random().toString(36).substring(2);
-            var rsaKey = cryptico.generateRSAKey(randomPhrase, 4096);
+            var rsaKey = cryptico.generateRSAKey(randomPhrase, 1024);
+            //small keysize = high performace, low security
+            //big keysize = low performace, high security
             return rsaKey;
         }
 
