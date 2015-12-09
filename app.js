@@ -13,6 +13,7 @@ var basic = auth.digest({
 
 var server = require('https').createServer(options, app).listen(3000, function () {
     console.log("Https server started");
+    console.log("--------------------");
 });
 var io = require('socket.io').listen(server);
 var nickname;
@@ -39,6 +40,7 @@ app.get('/', function (req, res) {
 
 
 io.on('connection', function (socket) {
+    socket.emit('username', nickname);
     socket.on('connected', function (data) {
         socket.nickname = nickname;
         users.push({
@@ -47,6 +49,7 @@ io.on('connection', function (socket) {
             pubKey: data
         });
         updateUsers();
+        console.log(getDateTime());
         console.log(socket.nickname + " connected!");
         usersOnline();
     });
@@ -66,6 +69,7 @@ io.on('connection', function (socket) {
         if (!socket.nickname) return;
         users.splice(indexOfID(socket.id), 1);
         updateUsers();
+        console.log(getDateTime());
         console.log(socket.nickname + " disconnected!");
         usersOnline();
     });
@@ -87,5 +91,32 @@ io.on('connection', function (socket) {
             online += users[i].nick + ", ";
         }
         console.log("Users online: " + online.slice(0, -2) + "\n----------------");
+    }
+
+    function getDateTime() {
+        var now     = new Date();
+        var year    = now.getFullYear();
+        var month   = now.getMonth()+1;
+        var day     = now.getDate();
+        var hour    = now.getHours();
+        var minute  = now.getMinutes();
+        var second  = now.getSeconds();
+        if(month.toString().length == 1) {
+            var month = '0'+month;
+        }
+        if(day.toString().length == 1) {
+            var day = '0'+day;
+        }
+        if(hour.toString().length == 1) {
+            var hour = '0'+hour;
+        }
+        if(minute.toString().length == 1) {
+            var minute = '0'+minute;
+        }
+        if(second.toString().length == 1) {
+            var second = '0'+second;
+        }
+        var dateTime = year+'/'+month+'/'+day+' '+hour+':'+minute+':'+second;
+        return dateTime;
     }
 });

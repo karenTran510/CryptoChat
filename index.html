@@ -55,6 +55,10 @@
             overflow-y: auto;
         }
 
+        #username {
+            text-align: center;
+        }
+
         form input {
             width: 400px;
             top-padding: 100px;
@@ -68,8 +72,6 @@
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/hmac-sha512.js"></script>
-    <script src="https://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="cryptico.min.js"></script>
 
@@ -78,7 +80,7 @@
     <script>
         function generateKey() {
             var randomPhrase = Math.random().toString(36).substring(2);
-            var rsaKey = cryptico.generateRSAKey(randomPhrase, 2048);
+            var rsaKey = cryptico.generateRSAKey(randomPhrase, 4096);
             return rsaKey;
         }
 
@@ -92,10 +94,16 @@
             var messageForm = $('#send-message');
             var messageBox = $('#message');
             var chat = $('#chat');
+            var username = $('#username');
             var rsaKey = generateKey();
             var pubKey = cryptico.publicKeyString(rsaKey);
 
+            socket.on('username', function(data) {
+                username.append(data);
+            });
+
             socket.emit('connected', pubKey);
+
 
             // Receive usernames
             socket.on('users', function(data) {
@@ -135,7 +143,7 @@
                         return;
                     }
                 }
-                chat.append('<b>No connectivity! Please refresh!<b><br/>');
+                alert("No connectivity! Please refresh!");
             });
         });
 
@@ -144,6 +152,7 @@
 
 <body>
     <h1>Welcome to Cryptochat! <img src="favicon.png" width="25px"> </h1>
+    <p id="username">Logged in as: </p>
     <div id="contentWrap">
         <div id="chatWrap">
             <div id="chat"></div>
